@@ -1,0 +1,45 @@
+import { z } from "zod";
+
+import { getWellnessAdvice } from "@/lib/gemini";
+import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
+
+export const sessionRouter = createTRPCRouter({
+  save: protectedProcedure
+    .input(
+      z.object({
+        durationMins: z.number(),
+        moodScore: z.number().min(1).max(5),
+        examType: z.string(),
+        journalText: z.string().optional(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const aiResponse = await getWellnessAdvice({
+        examType: input.examType,
+        moodScore: input.moodScore,
+        journalText: input.journalText ?? "",
+        durationMins: input.durationMins,
+      });
+
+      const session = await ctx.db.studySession.create({
+        data: {
+          userId: ctx.userId,
+          durationMins: input.durationMins,
+          moodScore: input.moodScore,
+          examType: input.examType,
+          journalText: input.journalText,
+          aiResponse,
+        },
+      });
+
+      return { session, aiResponse };
+    }),
+
+  getHistory: protectedProcedure.query(async ({ ctx }) => {
+    return ctx.db.studySession.findMany({
+      where: { userId: ctx.userId },
+      orderBy: { createdAt: "desc" },
+      take: 7,
+    });
+  }),
+});

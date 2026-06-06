@@ -20,6 +20,9 @@ next-env.d.ts
 
 # production
 /build
+# ignore the generated filder and everything in it.
+/generated
+/generated/prisma
 
 # misc
 .DS_Store
