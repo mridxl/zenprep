@@ -1,6 +1,7 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 import { env } from "@/env";
+import type { ExamType } from "@/lib/exam-types";
 import { buildWellnessPrompt } from "@/lib/gemini-prompt";
 
 let client: GoogleGenerativeAI | undefined;
@@ -16,7 +17,7 @@ export async function getWellnessAdvice({
   journalText,
   durationMins,
 }: {
-  examType: string;
+  examType: ExamType;
   moodScore: number;
   journalText: string;
   durationMins: number;
@@ -29,5 +30,11 @@ export async function getWellnessAdvice({
   });
 
   const result = await getModel().generateContent(prompt);
-  return result.response.text();
+  const text = result.response.text().trim();
+
+  if (!text) {
+    throw new Error("Gemini returned an empty response");
+  }
+
+  return text;
 }

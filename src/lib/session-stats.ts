@@ -1,5 +1,7 @@
 import { isToday } from "date-fns";
 
+import { SUB_MINUTE_SESSION_MINS } from "@/lib/session-constants";
+
 export interface SessionLike {
   createdAt: Date | string;
   durationMins: number;
@@ -29,16 +31,16 @@ export function computeTodaySummary(sessions: SessionLike[]) {
     sessionCount: todaySessions.length,
     todayMins,
     avgMood: avgMood.toFixed(1),
-    minsDisplay: todayMins === 0 ? "<1" : todayMins,
+    minsDisplay: todayMins === SUB_MINUTE_SESSION_MINS ? "<1" : todayMins,
   };
 }
 
 export function formatDurationMins(mins: number): string {
-  return mins === 0 ? "10s" : `${mins}m`;
+  return mins === SUB_MINUTE_SESSION_MINS ? "10s" : `${mins}m`;
 }
 
 export function formatSessionLabel(durationMins: number): string {
-  return durationMins === 0
+  return durationMins === SUB_MINUTE_SESSION_MINS
     ? "10-second session"
     : `${durationMins}-minute session`;
 }

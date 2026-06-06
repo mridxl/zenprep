@@ -1,13 +1,11 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { SignInButton, UserButton, useAuth } from "@clerk/nextjs";
 import { BookOpen, HeartPulse, Timer as TimerIcon } from "lucide-react";
 
-import {
-  ExamTypePicker,
-  type ExamType,
-} from "@/components/ExamTypePicker";
+import { ExamTypePicker, type ExamType } from "@/components/ExamTypePicker";
+import { readStoredExamType } from "@/lib/exam-types";
 import { MoodChart } from "@/components/MoodChart";
 import { SessionHistory } from "@/components/SessionHistory";
 import { TodaySummary } from "@/components/TodaySummary";
@@ -66,6 +64,13 @@ export default function Home() {
   const [sessionModalOpen, setSessionModalOpen] = useState(false);
   const [completedDuration, setCompletedDuration] = useState(25);
   const [timerResetSignal, setTimerResetSignal] = useState(0);
+
+  useEffect(() => {
+    const stored = readStoredExamType();
+    if (stored) {
+      setExamType(stored);
+    }
+  }, []);
 
   const { data: sessions = [] } = api.session.getHistory.useQuery(undefined, {
     enabled: isLoaded && !!isSignedIn,

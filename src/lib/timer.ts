@@ -1,3 +1,5 @@
+import { SUB_MINUTE_SESSION_MINS } from "@/lib/session-constants";
+
 export const DURATIONS = [25, 45, 60] as const;
 export const DEV_DURATION_SEC = 10;
 
@@ -12,7 +14,7 @@ export function presetToSeconds(preset: DurationPreset): number {
 }
 
 export function presetToDurationMins(preset: DurationPreset): number {
-  return preset.kind === "minutes" ? preset.mins : 0;
+  return preset.kind === "minutes" ? preset.mins : SUB_MINUTE_SESSION_MINS;
 }
 
 export function isSamePreset(a: DurationPreset, b: DurationPreset): boolean {

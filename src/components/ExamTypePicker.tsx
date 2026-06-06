@@ -1,13 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { DropdownMenu } from "radix-ui";
 import { Check, ChevronDown } from "lucide-react";
 
-import { EXAM_TYPES, type ExamType } from "@/lib/exam-types";
+import {
+  EXAM_TYPES,
+  writeStoredExamType,
+  type ExamType,
+} from "@/lib/exam-types";
 import { cn } from "@/lib/utils";
-
-const STORAGE_KEY = "zenprep:examType";
 
 export type { ExamType };
 
@@ -22,24 +23,10 @@ export function ExamTypePicker({
   onChange,
   disabled = false,
 }: ExamTypePickerProps) {
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored && EXAM_TYPES.includes(stored as ExamType)) {
-      onChange(stored as ExamType);
-    }
-    setMounted(true);
-  }, [onChange]);
-
   const handleSelect = (examType: ExamType) => {
     onChange(examType);
-    localStorage.setItem(STORAGE_KEY, examType);
+    writeStoredExamType(examType);
   };
-
-  if (!mounted) {
-    return <div className="h-10 w-28 animate-pulse rounded-base bg-foreground/10" />;
-  }
 
   return (
     <DropdownMenu.Root>

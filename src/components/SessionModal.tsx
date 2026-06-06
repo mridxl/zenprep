@@ -7,6 +7,7 @@ import { AIResponse } from "@/components/AIResponse";
 import { BreathingWidget } from "@/components/BreathingWidget";
 import type { ExamType } from "@/lib/exam-types";
 import { MOOD_META } from "@/lib/mood";
+import { BREATHING_CYCLE_COUNT } from "@/lib/session-constants";
 import { formatSessionLabel } from "@/lib/session-stats";
 import { Button } from "@/components/ui/button";
 import {
@@ -97,17 +98,21 @@ export function SessionModal({
   const [moodScore, setMoodScore] = useState<number | null>(null);
   const [journalText, setJournalText] = useState("");
   const [aiResponse, setAiResponse] = useState("");
+  const [coachUnavailable, setCoachUnavailable] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   const utils = api.useUtils();
 
   const saveMutation = api.session.save.useMutation({
     onSuccess: (data) => {
       setAiResponse(data.aiResponse);
+      setCoachUnavailable(data.coachUnavailable);
+      setSaveError(null);
       setStep("ai");
       void utils.session.getHistory.invalidate();
     },
     onError: () => {
-      saveMutation.reset();
+      setSaveError("Couldn't save your check-in. Please try again.");
     },
   });
 
@@ -117,6 +122,8 @@ export function SessionModal({
       setMoodScore(null);
       setJournalText("");
       setAiResponse("");
+      setCoachUnavailable(false);
+      setSaveError(null);
       saveMutation.reset();
     }
     onOpenChange(nextOpen);
@@ -125,6 +132,7 @@ export function SessionModal({
   const handleSubmit = () => {
     if (!moodScore) return;
 
+    setSaveError(null);
     saveMutation.mutate({
       durationMins,
       moodScore,
@@ -192,6 +200,12 @@ export function SessionModal({
                 />
               </div>
 
+              {saveError ? (
+                <p className="text-sm text-foreground/80" role="alert">
+                  {saveError}
+                </p>
+              ) : null}
+
               <Button
                 className="w-full"
                 size="lg"
@@ -221,6 +235,7 @@ export function SessionModal({
             </DialogHeader>
             <AIResponse
               aiResponse={aiResponse}
+              coachUnavailable={coachUnavailable}
               onStartBreathing={() => setStep("breathing")}
             />
           </>
@@ -231,7 +246,7 @@ export function SessionModal({
             <DialogHeader>
               <DialogTitle>4-7-8 breathing</DialogTitle>
               <DialogDescription>
-                Inhale 4s, hold 7s, exhale 8s. Three cycles.
+                Inhale 4s, hold 7s, exhale 8s. {BREATHING_CYCLE_COUNT} cycles.
               </DialogDescription>
             </DialogHeader>
             <BreathingWidget onComplete={handleBreathingComplete} />

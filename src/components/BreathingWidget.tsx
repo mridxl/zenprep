@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { BREATHING_CYCLE_COUNT } from "@/lib/session-constants";
 import { cn } from "@/lib/utils";
 
 type Phase = "inhale" | "hold1" | "exhale" | "hold2";
@@ -44,7 +45,7 @@ export function BreathingWidget({ onComplete }: BreathingWidgetProps) {
 
       if (phase === "hold2") {
         const nextCycles = cycles + 1;
-        if (nextCycles >= 3) {
+        if (nextCycles >= BREATHING_CYCLE_COUNT) {
           setIsComplete(true);
           return;
         }
@@ -74,7 +75,7 @@ export function BreathingWidget({ onComplete }: BreathingWidgetProps) {
   return (
     <div className="flex flex-col items-center gap-6 py-4">
       <div className="flex items-center gap-2">
-        {[0, 1, 2].map((i) => (
+        {Array.from({ length: BREATHING_CYCLE_COUNT }, (_, i) => i).map((i) => (
           <div
             key={i}
             className={cn(
@@ -88,7 +89,7 @@ export function BreathingWidget({ onComplete }: BreathingWidgetProps) {
           />
         ))}
         <span className="ml-1 text-xs text-foreground/50">
-          Cycle {cycles + 1} of 3
+          Cycle {cycles + 1} of {BREATHING_CYCLE_COUNT}
         </span>
       </div>
 

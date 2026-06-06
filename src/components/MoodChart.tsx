@@ -10,7 +10,7 @@ import {
   YAxis,
 } from "recharts";
 
-import { MOOD_META } from "@/lib/mood";
+import { getMoodMeta } from "@/lib/mood";
 import type { RouterOutputs } from "@/trpc/react";
 
 type Session = RouterOutputs["session"]["getHistory"][number];
@@ -39,9 +39,7 @@ export function MoodChart({ sessions }: MoodChartProps) {
     .reverse();
 
   const latestMood = sessions[0]?.moodScore;
-  const latestLabel = latestMood
-    ? MOOD_META[latestMood as keyof typeof MOOD_META]?.label
-    : null;
+  const latestLabel = latestMood ? getMoodMeta(latestMood).label : null;
 
   return (
     <div className="space-y-3">

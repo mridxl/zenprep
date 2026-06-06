@@ -1,6 +1,8 @@
 import { TRPCError } from "@trpc/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { getWellnessAdvice } from "@/lib/gemini";
+import { AI_FALLBACK_RESPONSE, HISTORY_LIMIT } from "@/lib/session-constants";
 import { createCaller } from "@/server/api/root";
 
 vi.mock("@/lib/gemini", () => ({
@@ -37,6 +39,7 @@ function createTestCaller(userId: string | null) {
 describe("session router", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(getWellnessAdvice).mockResolvedValue("Coach says breathe.");
     mockCreate.mockResolvedValue({
       id: "session-1",
       userId: "user-1",
@@ -83,6 +86,43 @@ describe("session router", () => {
       },
     });
     expect(result.aiResponse).toBe("Coach says breathe.");
+    expect(result.coachUnavailable).toBe(false);
+  });
+
+  it("persists session with fallback when coach is unavailable", async () => {
+    vi.mocked(getWellnessAdvice).mockRejectedValueOnce(
+      new Error("rate limited"),
+    );
+    mockCreate.mockResolvedValueOnce({
+      id: "session-2",
+      userId: "user-1",
+      durationMins: 25,
+      moodScore: 3,
+      examType: "NEET",
+      journalText: null,
+      aiResponse: AI_FALLBACK_RESPONSE,
+      createdAt: new Date(),
+    });
+
+    const caller = createTestCaller("user-1");
+    const result = await caller.session.save({
+      durationMins: 25,
+      moodScore: 3,
+      examType: "NEET",
+    });
+
+    expect(mockCreate).toHaveBeenCalledWith({
+      data: {
+        userId: "user-1",
+        durationMins: 25,
+        moodScore: 3,
+        examType: "NEET",
+        journalText: undefined,
+        aiResponse: AI_FALLBACK_RESPONSE,
+      },
+    });
+    expect(result.aiResponse).toBe(AI_FALLBACK_RESPONSE);
+    expect(result.coachUnavailable).toBe(true);
   });
 
   it("rejects invalid exam types", async () => {
@@ -107,7 +147,7 @@ describe("session router", () => {
     expect(mockFindMany).toHaveBeenCalledWith({
       where: { userId: "user-1" },
       orderBy: { createdAt: "desc" },
-      take: 7,
+      take: HISTORY_LIMIT,
     });
     expect(result).toEqual(history);
   });
