@@ -4,33 +4,18 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Pause, Play, RotateCcw, Zap } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import {
+  DEFAULT_PRESET,
+  DEV_DURATION_SEC,
+  DURATIONS,
+  isSamePreset,
+  presetToDurationMins,
+  presetToSeconds,
+  type DurationPreset,
+} from "@/lib/timer";
 import { cn } from "@/lib/utils";
 
-const DURATIONS = [25, 45, 60] as const;
-const DEV_DURATION_SEC = 10;
-
-type DurationPreset =
-  | { kind: "minutes"; mins: number }
-  | { kind: "seconds"; secs: number };
-
-const DEFAULT_PRESET: DurationPreset = { kind: "minutes", mins: 25 };
-
-function presetToSeconds(preset: DurationPreset): number {
-  return preset.kind === "minutes" ? preset.mins * 60 : preset.secs;
-}
-
-function presetToDurationMins(preset: DurationPreset): number {
-  return preset.kind === "minutes" ? preset.mins : 0;
-}
-
-function isSamePreset(a: DurationPreset, b: DurationPreset): boolean {
-  return (
-    a.kind === b.kind &&
-    (a.kind === "minutes"
-      ? a.mins === (b as typeof a).mins
-      : a.secs === (b as typeof a).secs)
-  );
-}
+const showDevPreset = process.env.NODE_ENV === "development";
 
 interface TimerProps {
   onSessionComplete: (durationMins: number) => void;
@@ -123,7 +108,12 @@ export function Timer({
     >
       <div className="space-y-2 border-b-2 border-border p-3 md:px-4">
         <p className="text-xs font-heading text-foreground/55">Session length</p>
-        <div className="grid grid-cols-4 gap-2">
+        <div
+          className={cn(
+            "grid gap-2",
+            showDevPreset ? "grid-cols-4" : "grid-cols-3",
+          )}
+        >
           {DURATIONS.map((duration) => {
             const preset: DurationPreset = { kind: "minutes", mins: duration };
             const isSelected = isSamePreset(selectedPreset, preset);
@@ -141,19 +131,21 @@ export function Timer({
               </Button>
             );
           })}
-          <Button
-            type="button"
-            size="sm"
-            className="w-full text-xs"
-            variant={isDevPreset ? "default" : "ghost"}
-            disabled={disabled || isRunning}
-            onClick={() =>
-              handleDurationChange({ kind: "seconds", secs: DEV_DURATION_SEC })
-            }
-          >
-            <Zap className="size-3" />
-            {DEV_DURATION_SEC}s
-          </Button>
+          {showDevPreset ? (
+            <Button
+              type="button"
+              size="sm"
+              className="w-full text-xs"
+              variant={isDevPreset ? "default" : "ghost"}
+              disabled={disabled || isRunning}
+              onClick={() =>
+                handleDurationChange({ kind: "seconds", secs: DEV_DURATION_SEC })
+              }
+            >
+              <Zap className="size-3" />
+              {DEV_DURATION_SEC}s
+            </Button>
+          ) : null}
         </div>
       </div>
 

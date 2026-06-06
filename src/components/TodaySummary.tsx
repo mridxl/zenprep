@@ -1,7 +1,6 @@
 "use client";
 
-import { isToday } from "date-fns";
-
+import { computeTodaySummary } from "@/lib/session-stats";
 import type { RouterOutputs } from "@/trpc/react";
 
 type Session = RouterOutputs["session"]["getHistory"][number];
@@ -11,20 +10,14 @@ interface TodaySummaryProps {
 }
 
 export function TodaySummary({ sessions }: TodaySummaryProps) {
-  const todaySessions = sessions.filter((s) => isToday(new Date(s.createdAt)));
+  const summary = computeTodaySummary(sessions);
 
-  if (todaySessions.length === 0) return null;
-
-  const todayMins = todaySessions.reduce((sum, s) => sum + s.durationMins, 0);
-  const avgMood = (
-    todaySessions.reduce((sum, s) => sum + s.moodScore, 0) /
-    todaySessions.length
-  ).toFixed(1);
+  if (!summary) return null;
 
   const stats = [
-    { value: todaySessions.length, label: "sessions today" },
-    { value: todayMins === 0 ? "<1" : todayMins, label: "mins studied" },
-    { value: avgMood, label: "avg mood" },
+    { value: summary.sessionCount, label: "sessions today" },
+    { value: summary.minsDisplay, label: "mins studied" },
+    { value: summary.avgMood, label: "avg mood" },
   ] as const;
 
   return (

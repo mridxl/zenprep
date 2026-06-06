@@ -4,20 +4,12 @@ import { useEffect, useState } from "react";
 import { DropdownMenu } from "radix-ui";
 import { Check, ChevronDown } from "lucide-react";
 
+import { EXAM_TYPES, type ExamType } from "@/lib/exam-types";
 import { cn } from "@/lib/utils";
 
-const EXAM_TYPES = [
-  "JEE",
-  "NEET",
-  "CUET",
-  "CAT",
-  "GATE",
-  "UPSC",
-  "Boards",
-] as const;
 const STORAGE_KEY = "zenprep:examType";
 
-export type ExamType = (typeof EXAM_TYPES)[number];
+export type { ExamType };
 
 interface ExamTypePickerProps {
   value: ExamType;

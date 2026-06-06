@@ -2,21 +2,11 @@
 
 import { formatDistanceToNow } from "date-fns";
 
+import { getMoodMeta } from "@/lib/mood";
+import { formatDurationMins } from "@/lib/session-stats";
 import type { RouterOutputs } from "@/trpc/react";
 
 type Session = RouterOutputs["session"]["getHistory"][number];
-
-const MOOD_META: Record<number, { emoji: string; label: string }> = {
-  1: { emoji: "😤", label: "Awful" },
-  2: { emoji: "😔", label: "Low" },
-  3: { emoji: "😐", label: "Okay" },
-  4: { emoji: "🙂", label: "Good" },
-  5: { emoji: "🤩", label: "Great" },
-};
-
-function formatDuration(mins: number) {
-  return mins === 0 ? "10s" : `${mins}m`;
-}
 
 interface SessionHistoryProps {
   sessions: Session[];
@@ -35,8 +25,7 @@ export function SessionHistory({ sessions }: SessionHistoryProps) {
     <div>
       <ul className="max-h-56 divide-y-2 divide-border overflow-y-auto pr-1">
         {sessions.map((session) => {
-          const mood =
-            MOOD_META[session.moodScore] ?? { emoji: "😐", label: "Okay" };
+          const mood = getMoodMeta(session.moodScore);
 
           return (
             <li key={session.id} className="flex gap-3 py-3 first:pt-0 last:pb-0">
@@ -57,7 +46,7 @@ export function SessionHistory({ sessions }: SessionHistoryProps) {
                   {formatDistanceToNow(new Date(session.createdAt), {
                     addSuffix: true,
                   })}
-                  , {session.examType} {formatDuration(session.durationMins)}
+                  , {session.examType} {formatDurationMins(session.durationMins)}
                 </p>
 
                 {session.journalText ? (

@@ -5,6 +5,9 @@ import { Loader2 } from "lucide-react";
 
 import { AIResponse } from "@/components/AIResponse";
 import { BreathingWidget } from "@/components/BreathingWidget";
+import type { ExamType } from "@/lib/exam-types";
+import { MOOD_META } from "@/lib/mood";
+import { formatSessionLabel } from "@/lib/session-stats";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -17,13 +20,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { api } from "@/trpc/react";
 
-const MOODS = [
-  { score: 1, emoji: "😤", label: "Awful" },
-  { score: 2, emoji: "😔", label: "Low" },
-  { score: 3, emoji: "😐", label: "Okay" },
-  { score: 4, emoji: "🙂", label: "Good" },
-  { score: 5, emoji: "🤩", label: "Great" },
-] as const;
+const MOODS = Object.entries(MOOD_META).map(([score, meta]) => ({
+  score: Number(score),
+  ...meta,
+}));
 
 const STEPS = [
   { id: "form", label: "Check-in" },
@@ -37,7 +37,7 @@ interface SessionModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   durationMins: number;
-  examType: string;
+  examType: ExamType;
   onFlowComplete: () => void;
 }
 
@@ -106,6 +106,9 @@ export function SessionModal({
       setStep("ai");
       void utils.session.getHistory.invalidate();
     },
+    onError: () => {
+      saveMutation.reset();
+    },
   });
 
   const handleOpenChange = (nextOpen: boolean) => {
@@ -135,8 +138,7 @@ export function SessionModal({
     onFlowComplete();
   };
 
-  const sessionLabel =
-    durationMins === 0 ? "10-second session" : `${durationMins}-minute session`;
+  const sessionLabel = formatSessionLabel(durationMins);
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>

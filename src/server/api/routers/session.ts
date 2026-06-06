@@ -1,5 +1,6 @@
 import { z } from "zod";
 
+import { EXAM_TYPE_SCHEMA_VALUE } from "@/lib/exam-types";
 import { getWellnessAdvice } from "@/lib/gemini";
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 
@@ -7,10 +8,10 @@ export const sessionRouter = createTRPCRouter({
   save: protectedProcedure
     .input(
       z.object({
-        durationMins: z.number(),
-        moodScore: z.number().min(1).max(5),
-        examType: z.string(),
-        journalText: z.string().optional(),
+        durationMins: z.number().int().min(0).max(180),
+        moodScore: z.number().int().min(1).max(5),
+        examType: z.enum(EXAM_TYPE_SCHEMA_VALUE),
+        journalText: z.string().max(2000).optional(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
