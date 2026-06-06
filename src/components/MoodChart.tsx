@@ -87,10 +87,14 @@ export function MoodChart({ sessions }: MoodChartProps) {
               "Mood",
             ]}
             contentStyle={{
-              borderRadius: "10px",
+              borderRadius: "12px",
               border: "2px solid var(--border)",
+              backgroundColor: "var(--secondary-background)",
+              color: "var(--foreground)",
               boxShadow: "var(--shadow)",
             }}
+            labelStyle={{ color: "var(--foreground)" }}
+            itemStyle={{ color: "var(--foreground)" }}
           />
           <Area
             type="monotone"

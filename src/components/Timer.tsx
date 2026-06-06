@@ -109,87 +109,86 @@ export function Timer({
   const progress =
     initialSeconds > 0 ? (initialSeconds - totalSeconds) / initialSeconds : 0;
 
+  const isDevPreset = isSamePreset(selectedPreset, {
+    kind: "seconds",
+    secs: DEV_DURATION_SEC,
+  });
+
   return (
-    <div className="space-y-5">
-      <div className="flex flex-wrap items-center gap-2">
-        <span className="mr-1 text-xs font-heading text-foreground/50">
-          Duration
-        </span>
-        {DURATIONS.map((duration) => {
-          const preset: DurationPreset = { kind: "minutes", mins: duration };
-          const isSelected = isSamePreset(selectedPreset, preset);
-          return (
-            <Button
-              key={duration}
-              type="button"
-              size="sm"
-              variant={isSelected ? "default" : "neutral"}
-              disabled={disabled || isRunning}
-              className={cn(
-                isSelected &&
-                  "ring-2 ring-ring ring-offset-2 ring-offset-background",
-              )}
-              onClick={() => handleDurationChange(preset)}
-            >
-              {duration} min
-            </Button>
-          );
-        })}
-        <Button
-          type="button"
-          size="sm"
-          variant={
-            isSamePreset(selectedPreset, {
-              kind: "seconds",
-              secs: DEV_DURATION_SEC,
-            })
-              ? "default"
-              : "ghost"
-          }
-          disabled={disabled || isRunning}
+    <div
+      className={cn(
+        "overflow-hidden rounded-base border-2 border-border bg-secondary-background shadow-shadow transition-colors",
+        isRunning && "border-main",
+      )}
+    >
+      <div className="space-y-2 border-b-2 border-border p-3 md:px-4">
+        <p className="text-xs font-heading text-foreground/55">Session length</p>
+        <div className="grid grid-cols-4 gap-2">
+          {DURATIONS.map((duration) => {
+            const preset: DurationPreset = { kind: "minutes", mins: duration };
+            const isSelected = isSamePreset(selectedPreset, preset);
+            return (
+              <Button
+                key={duration}
+                type="button"
+                size="sm"
+                className="w-full"
+                variant={isSelected ? "default" : "neutral"}
+                disabled={disabled || isRunning}
+                onClick={() => handleDurationChange(preset)}
+              >
+                {duration}m
+              </Button>
+            );
+          })}
+          <Button
+            type="button"
+            size="sm"
+            className="w-full text-xs"
+            variant={isDevPreset ? "default" : "ghost"}
+            disabled={disabled || isRunning}
+            onClick={() =>
+              handleDurationChange({ kind: "seconds", secs: DEV_DURATION_SEC })
+            }
+          >
+            <Zap className="size-3" />
+            {DEV_DURATION_SEC}s
+          </Button>
+        </div>
+      </div>
+
+      <div className="flex flex-col items-center gap-4 px-6 py-10 text-center md:py-12">
+        <span
           className={cn(
-            "text-xs opacity-70",
-            isSamePreset(selectedPreset, {
-              kind: "seconds",
-              secs: DEV_DURATION_SEC,
-            }) &&
-              "opacity-100 ring-2 ring-ring ring-offset-2 ring-offset-background",
+            "inline-flex items-center gap-1.5 rounded-full border-2 border-border px-3 py-1 text-xs font-heading transition-colors",
+            isRunning
+              ? "bg-main text-main-foreground"
+              : "bg-background text-foreground/70",
           )}
-          onClick={() =>
-            handleDurationChange({ kind: "seconds", secs: DEV_DURATION_SEC })
-          }
         >
-          <Zap className="size-3" />
-          {DEV_DURATION_SEC}s test
-        </Button>
-      </div>
-
-      <div
-        className={cn(
-          "overflow-hidden rounded-base border-2 border-border bg-secondary-background shadow-shadow transition-colors",
-          isRunning && "border-main bg-main/5",
-        )}
-      >
-        <div className="px-6 py-10 text-center md:px-10 md:py-14">
-          <p className="font-heading text-6xl tracking-tight tabular-nums md:text-7xl">
-            {displayMinutes}
-            <span className="text-foreground/30">:</span>
-            {displaySeconds}
-          </p>
-          <p className="mt-3 text-sm text-foreground/60">
-            {isRunning ? "Focus mode on" : "Ready when you are"}
-          </p>
-        </div>
-
-        <div className="h-2 border-t-2 border-border bg-background">
-          <div
-            className="h-full origin-left bg-main transition-transform duration-1000 ease-linear"
-            style={{ transform: `scaleX(${progress})` }}
+          <span
+            className={cn(
+              "size-1.5 rounded-full bg-current",
+              isRunning && "animate-pulse",
+            )}
           />
-        </div>
+          {isRunning ? "Focus mode on" : "Ready when you are"}
+        </span>
+        <p className="font-heading text-6xl leading-none tracking-tight tabular-nums sm:text-7xl">
+          {displayMinutes}
+          <span className="text-foreground/25">:</span>
+          {displaySeconds}
+        </p>
       </div>
 
-      <div className="flex flex-wrap items-center gap-3">
+      <div className="h-2.5 border-y-2 border-border bg-background">
+        <div
+          className="h-full origin-left bg-main transition-transform duration-1000 ease-linear"
+          style={{ transform: `scaleX(${progress})` }}
+        />
+      </div>
+
+      <div className="grid grid-cols-[1fr_auto_auto] gap-2 border-t-2 border-border p-4">
         <Button
           type="button"
           size="lg"
@@ -225,11 +224,11 @@ export function Timer({
           variant="ghost"
           size="sm"
           disabled={disabled}
-          className="ml-auto text-xs opacity-60"
+          className="text-xs opacity-55"
           onClick={handleSkip}
         >
           <Zap className="size-3" />
-          Skip to end
+          Skip
         </Button>
       </div>
     </div>

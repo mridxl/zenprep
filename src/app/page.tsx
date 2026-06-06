@@ -10,6 +10,7 @@ import {
 } from "@/components/ExamTypePicker";
 import { MoodChart } from "@/components/MoodChart";
 import { SessionHistory } from "@/components/SessionHistory";
+import { TodaySummary } from "@/components/TodaySummary";
 import { SessionModal } from "@/components/SessionModal";
 import { Timer } from "@/components/Timer";
 import { Button } from "@/components/ui/button";
@@ -18,21 +19,23 @@ import { api } from "@/trpc/react";
 
 function LoadingShell() {
   return (
-    <main className="min-h-[100dvh] bg-background">
-      <header className="border-b-2 border-border px-4 py-4 md:px-8">
+    <main className="pattern-dots flex min-h-[100dvh] flex-col bg-background">
+      <header className="border-b-2 border-border bg-secondary-background px-4 py-4 md:px-8">
         <div className="mx-auto flex max-w-6xl items-center justify-between">
           <div className="h-10 w-32 animate-pulse rounded-base bg-foreground/10" />
           <div className="size-9 animate-pulse rounded-full bg-foreground/10" />
         </div>
       </header>
-      <div className="mx-auto grid max-w-6xl gap-8 p-4 md:p-8 lg:grid-cols-[1fr_320px]">
-        <div className="space-y-8">
-          <div className="h-20 animate-pulse rounded-base bg-foreground/10" />
-          <div className="h-64 animate-pulse rounded-base bg-foreground/10" />
+      <div className="mx-auto w-full max-w-5xl space-y-8 p-4 md:p-8">
+        <div className="mx-auto h-80 max-w-lg animate-pulse rounded-base bg-foreground/10" />
+        <div className="grid gap-6 md:grid-cols-3">
+          <div className="h-16 animate-pulse rounded-base bg-foreground/10" />
+          <div className="h-16 animate-pulse rounded-base bg-foreground/10" />
+          <div className="h-16 animate-pulse rounded-base bg-foreground/10" />
         </div>
-        <div className="space-y-6">
+        <div className="grid gap-6 lg:grid-cols-2">
           <div className="h-52 animate-pulse rounded-base bg-foreground/10" />
-          <div className="h-72 animate-pulse rounded-base bg-foreground/10" />
+          <div className="h-52 animate-pulse rounded-base bg-foreground/10" />
         </div>
       </div>
     </main>
@@ -82,8 +85,8 @@ export default function Home() {
   }
 
   return (
-    <main className="min-h-[100dvh] bg-background">
-      <header className="border-b-2 border-border px-4 py-4 md:px-8">
+    <main className="pattern-dots flex min-h-[100dvh] flex-col bg-background">
+      <header className="border-b-2 border-border bg-secondary-background px-4 py-4 md:px-8">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <div className="flex size-10 items-center justify-center rounded-base border-2 border-border bg-main shadow-shadow">
@@ -98,12 +101,21 @@ export default function Home() {
               </p>
             </div>
           </div>
-          {isSignedIn ? <UserButton /> : null}
+          {isSignedIn ? (
+            <div className="flex items-center gap-3">
+              <ExamTypePicker
+                value={examType}
+                onChange={setExamType}
+                disabled={sessionModalOpen}
+              />
+              <UserButton />
+            </div>
+          ) : null}
         </div>
       </header>
 
       {!isSignedIn ? (
-        <div className="mx-auto grid max-w-6xl gap-10 px-4 py-12 md:grid-cols-2 md:items-center md:px-8 md:py-16">
+        <div className="mx-auto grid w-full max-w-6xl flex-1 place-content-center gap-10 px-4 py-12 md:grid-cols-2 md:items-center md:px-8 md:py-16">
           <div className="space-y-6">
             <h2 className="max-w-md font-heading text-4xl tracking-tight md:text-5xl">
               Study hard.
@@ -138,13 +150,8 @@ export default function Home() {
           </div>
         </div>
       ) : (
-        <div className="mx-auto grid max-w-6xl gap-8 p-4 md:p-8 lg:grid-cols-[1fr_320px]">
-          <section className="space-y-8">
-            <ExamTypePicker
-              value={examType}
-              onChange={setExamType}
-              disabled={sessionModalOpen}
-            />
+        <div className="mx-auto w-full max-w-5xl flex-1 px-4 py-6 md:px-8 md:py-10">
+          <section className="mx-auto max-w-lg">
             <Timer
               onSessionComplete={handleSessionComplete}
               disabled={sessionModalOpen}
@@ -152,25 +159,29 @@ export default function Home() {
             />
           </section>
 
-          <aside className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Mood trend</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <MoodChart sessions={sessions} />
-              </CardContent>
-            </Card>
+          <section className="mt-8 space-y-6">
+            <TodaySummary sessions={sessions} />
 
-            <Card>
-              <CardHeader>
-                <CardTitle>Recent sessions</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <SessionHistory sessions={sessions} />
-              </CardContent>
-            </Card>
-          </aside>
+            <div className="grid gap-6 lg:grid-cols-2">
+              <Card className="flex flex-col">
+                <CardHeader>
+                  <CardTitle>Mood trend</CardTitle>
+                </CardHeader>
+                <CardContent className="flex-1">
+                  <MoodChart sessions={sessions} />
+                </CardContent>
+              </Card>
+
+              <Card className="flex flex-col">
+                <CardHeader>
+                  <CardTitle>Recent sessions</CardTitle>
+                </CardHeader>
+                <CardContent className="flex-1">
+                  <SessionHistory sessions={sessions} />
+                </CardContent>
+              </Card>
+            </div>
+          </section>
         </div>
       )}
 

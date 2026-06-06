@@ -1,6 +1,6 @@
 "use client";
 
-import { formatDistanceToNow, isToday } from "date-fns";
+import { formatDistanceToNow } from "date-fns";
 
 import type { RouterOutputs } from "@/trpc/react";
 
@@ -31,40 +31,9 @@ export function SessionHistory({ sessions }: SessionHistoryProps) {
     );
   }
 
-  const todaySessions = sessions.filter((s) => isToday(new Date(s.createdAt)));
-  const todayMins = todaySessions.reduce((sum, s) => sum + s.durationMins, 0);
-  const avgMood =
-    todaySessions.length > 0
-      ? (
-          todaySessions.reduce((sum, s) => sum + s.moodScore, 0) /
-          todaySessions.length
-        ).toFixed(1)
-      : null;
-
   return (
-    <div className="space-y-4">
-      {todaySessions.length > 0 && (
-        <div className="grid grid-cols-3 divide-x-2 divide-border overflow-hidden rounded-base border-2 border-border bg-main/10">
-          <div className="px-2 py-3 text-center">
-            <p className="font-heading text-xl tabular-nums">
-              {todaySessions.length}
-            </p>
-            <p className="text-[11px] text-foreground/50">sessions</p>
-          </div>
-          <div className="px-2 py-3 text-center">
-            <p className="font-heading text-xl tabular-nums">
-              {todayMins === 0 ? "<1" : todayMins}
-            </p>
-            <p className="text-[11px] text-foreground/50">mins today</p>
-          </div>
-          <div className="px-2 py-3 text-center">
-            <p className="font-heading text-xl tabular-nums">{avgMood}</p>
-            <p className="text-[11px] text-foreground/50">avg mood</p>
-          </div>
-        </div>
-      )}
-
-      <ul className="divide-y-2 divide-border">
+    <div>
+      <ul className="max-h-56 divide-y-2 divide-border overflow-y-auto pr-1">
         {sessions.map((session) => {
           const mood =
             MOOD_META[session.moodScore] ?? { emoji: "😐", label: "Okay" };

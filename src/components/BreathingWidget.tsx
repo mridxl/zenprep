@@ -29,6 +29,12 @@ export function BreathingWidget({ onComplete }: BreathingWidgetProps) {
   const [phase, setPhase] = useState<Phase>("inhale");
   const [cycles, setCycles] = useState(0);
   const [isComplete, setIsComplete] = useState(false);
+  const [hasStarted, setHasStarted] = useState(false);
+
+  useEffect(() => {
+    const timeout = setTimeout(() => setHasStarted(true), 60);
+    return () => clearTimeout(timeout);
+  }, []);
 
   useEffect(() => {
     if (isComplete) return;
@@ -104,8 +110,10 @@ export function BreathingWidget({ onComplete }: BreathingWidgetProps) {
           style={{
             width: 160,
             height: 160,
-            transform: `scale(${SCALE[phase]})`,
-            transition: `transform ${transitionDuration}ms cubic-bezier(0.4, 0, 0.2, 1)`,
+            transform: `scale(${hasStarted ? SCALE[phase] : SCALE.exhale})`,
+            transition: hasStarted
+              ? `transform ${transitionDuration}ms cubic-bezier(0.4, 0, 0.2, 1)`
+              : "none",
             animationDuration: isHolding ? "1.8s" : undefined,
           }}
         />
