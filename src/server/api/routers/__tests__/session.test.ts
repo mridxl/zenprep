@@ -7,14 +7,16 @@ vi.mock("@/lib/gemini", () => ({
   getWellnessAdvice: vi.fn().mockResolvedValue("Coach says breathe."),
 }));
 
-const mockCreate = vi.fn();
-const mockFindMany = vi.fn();
+const { mockCreate, mockFindMany } = vi.hoisted(() => ({
+  mockCreate: vi.fn(),
+  mockFindMany: vi.fn(),
+}));
 
 vi.mock("@/server/db", () => ({
   db: {
     studySession: {
-      create: (...args: unknown[]) => mockCreate(...args),
-      findMany: (...args: unknown[]) => mockFindMany(...args),
+      create: mockCreate,
+      findMany: mockFindMany,
     },
   },
 }));
