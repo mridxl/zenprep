@@ -11,6 +11,8 @@ A study timer with burnout guardrails for Indian exam prep. Track Pomodoro sessi
 - [Google Gemini](https://ai.google.dev) wellness coach
 - [Tailwind CSS](https://tailwindcss.com) + shadcn/ui
 
+Built for a vibecoding hackathon.
+
 ## Getting started
 
 1. Copy `.env.example` to `.env` and fill in Clerk, database, and Gemini keys.
